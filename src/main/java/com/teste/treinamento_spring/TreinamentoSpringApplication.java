@@ -37,7 +37,6 @@ public class TreinamentoSpringApplication implements CommandLineRunner {
 			}else {
 				system = false;
 			}
-
 		}
 	}
 }
