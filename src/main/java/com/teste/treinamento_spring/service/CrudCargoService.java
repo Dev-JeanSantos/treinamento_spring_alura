@@ -65,7 +65,6 @@ public class CrudCargoService {
             cargo.setId(id);
             cargo.setDescricao(descricao);
             cargoRepository.save(cargo);
-
             System.out.println("O Cargo " + cargo + " com id " + id + " foi atualizado com sucesso");
         }
 
