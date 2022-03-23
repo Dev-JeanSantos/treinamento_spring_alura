@@ -4,13 +4,15 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "tb_funcionario")
-public class Funcionario {
+public class Funcionario implements Serializable {
+    private static final Long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +26,24 @@ public class Funcionario {
     @ManyToOne
     @JoinColumn(name = "cargo_id", nullable = false)
     private Cargo cargo;
+
+
+    public Funcionario() {
+    }
+
+    public Funcionario(String nome,
+                       String cpf,
+                       Double salario,
+                       LocalDate dataContratacao,
+                       Cargo cargo,
+                       List<UnidadeTrabalho> unidadeTrabalhos) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.salario = salario;
+        this.dataContratacao = dataContratacao;
+        this.cargo = cargo;
+        this.unidadeTrabalhos = unidadeTrabalhos;
+    }
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)
@@ -88,5 +108,18 @@ public class Funcionario {
 
     public void setUnidadeTrabalhos(List<UnidadeTrabalho> unidadeTrabalhos) {
         this.unidadeTrabalhos = unidadeTrabalhos;
+    }
+
+    @Override
+    public String toString() {
+        return "Funcionario{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", salario=" + salario +
+                ", dataContratacao=" + dataContratacao +
+                ", cargo=" + cargo +
+                ", unidadeTrabalhos=" + unidadeTrabalhos +
+                '}';
     }
 }
