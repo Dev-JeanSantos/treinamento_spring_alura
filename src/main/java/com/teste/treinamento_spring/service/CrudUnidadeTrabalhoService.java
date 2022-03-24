@@ -2,92 +2,69 @@ package com.teste.treinamento_spring.service;
 
 import com.teste.treinamento_spring.orm.UnidadeTrabalho;
 import com.teste.treinamento_spring.repository.UnidadeTrabalhoRepository;
+import com.teste.treinamento_spring.request.UnidadeTrabalhoRequest;
+import com.teste.treinamento_spring.response.UnidadeTrabalhoResponse;
+import com.teste.treinamento_spring.service.exceptions.DataBaseException;
+import com.teste.treinamento_spring.service.exceptions.ResourcesNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Scanner;
+import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
 
 @Service
 public class CrudUnidadeTrabalhoService {
 
-    private final UnidadeTrabalhoRepository unidadeTrabalhoRepository;
+    @Autowired
+    private UnidadeTrabalhoRepository repository;
 
-    private Boolean system = true;
-
-    public CrudUnidadeTrabalhoService(UnidadeTrabalhoRepository unidadeTrabalhoRepository) {
-        this.unidadeTrabalhoRepository = unidadeTrabalhoRepository;
+    public Page<UnidadeTrabalhoResponse> findAll(PageRequest pageRequest) {
+        Page<UnidadeTrabalho> list = repository.findAll(pageRequest);
+        return list.map(x -> new UnidadeTrabalhoResponse(x));
     }
 
-    public void iniciar(Scanner scanner) {
+    public UnidadeTrabalhoResponse findById(Long id) {
+        Optional<UnidadeTrabalho> obj = repository.findById(id);
+        UnidadeTrabalho entity = obj.orElseThrow(() -> new ResourcesNotFoundException("Unidade de Trabalho não Encontrada"));
+        return new UnidadeTrabalhoResponse(entity);
+    }
 
-        while (system) {
-            System.out.println("QUAL AÇÃO VOCE DESEJA EXECUTAR");
-            System.out.println("0 -> SAIR");
-            System.out.println("1 -> SALVAR UNIDADE DE TRABALHO");
-            System.out.println("2 -> ATUALIZAR  UNIDADE DE TRABALHO");
-            System.out.println("3 -> BUSCAR  UNIDADE DE TRABALHO");
-            System.out.println("4 -> EXCLUIR  UNIDADE DE TRABALHO");
+    public UnidadeTrabalhoRequest insert(UnidadeTrabalhoRequest request) {
+        UnidadeTrabalho entity = new UnidadeTrabalho();
+        entity.setDescricao(request.getDescricao());
+        entity.setEndereco(request.getEndereco());
+        entity = repository.save(entity);
+        return new UnidadeTrabalhoRequest(entity);
+    }
 
-            int action = scanner.nextInt();
-
-            switch (action) {
-                case 1:
-                    salvar(scanner);
-                    break;
-                case 2:
-                    atualizar(scanner);
-                    break;
-                case 3:
-                    buscar(scanner);
-                    break;
-                case 4:
-                    deletar(scanner);
-                    break;
-                default:
-                    system = false;
-            }
+    public void delete(Long id) {
+        try {
+            repository.deleteById(id);
+        }
+        catch ( EmptyResultDataAccessException e) {
+            throw new ResourcesNotFoundException("ID not found " + id);
+        }
+        catch (DataIntegrityViolationException e) {
+            throw new DataBaseException("Integrity Violation");
         }
     }
 
-    private void buscar(Scanner scanner) {
-
-        Iterable<UnidadeTrabalho> unidadeTrabalhos = unidadeTrabalhoRepository.findAll();
-        unidadeTrabalhos.forEach( ut -> System.out.println(unidadeTrabalhos));
-    }
-
-    private void atualizar (Scanner scanner){
-            System.out.println("Digite o Id do unidade que vc deseja atualizar:");
-            Long id = scanner.nextLong();
-            System.out.println("Atualize o nome da unidade");
-            String descricao = scanner.next();
-            System.out.println("Atualize o endereço da unidade");
-            String endereco = scanner.next();
-            UnidadeTrabalho ut = new UnidadeTrabalho();
-            ut.setId(id);
-            ut.setDescricao(descricao);
-            ut.setEndereco(endereco);
-            unidadeTrabalhoRepository.save(ut);
-            System.out.println("A unidade de trabalho " + ut + " com id " + id + " foi atualizado com sucesso");
+    @Transactional
+    public UnidadeTrabalhoRequest update(Long id, UnidadeTrabalhoRequest request) {
+        try {
+            UnidadeTrabalho entity = repository.getOne(id);
+            entity.setDescricao(request.getDescricao());
+            entity.setEndereco(request.getEndereco());
+            entity = repository.save(entity);
+            return new UnidadeTrabalhoRequest(entity);
         }
-
-        private void salvar (Scanner scanner){
-            System.out.println("Nome da Unidade de Trabalho:");
-            String descricao = scanner.next();
-            System.out.println("Endereço da Unidade de Trabalho:");
-            String endereco = scanner.next();
-            UnidadeTrabalho ut = new UnidadeTrabalho();
-            ut.setDescricao(descricao);
-            ut.setEndereco(endereco);
-            unidadeTrabalhoRepository.save(ut);
-            System.out.println("O Cargo: " + ut + " foi salvo com sucesso");
-        }
-
-        private void deletar (Scanner scanner) {
-            System.out.println("Digite o Id do cargo que vc deseja excluir:");
-            Long id = scanner.nextLong();
-            UnidadeTrabalho ut = new UnidadeTrabalho();
-            ut.setId(id);
-            unidadeTrabalhoRepository.delete(ut);
-
-            System.out.println("O Cargo com id " + id + " foi excluido com sucesso");
+        catch (EntityNotFoundException e) {
+            throw new ResourcesNotFoundException("Id Não encontrado" + id);
         }
     }
+}
