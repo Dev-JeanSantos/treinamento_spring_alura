@@ -6,7 +6,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,25 +18,32 @@ public class Funcionario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
-    private String cpf;
-    private Double salario;
-    private LocalDate dataContratacao;
+    private String nome = "";
+    private String cpf = "";
+    private Double salario = null;
+    private LocalDate dataContratacao = LocalDate.now();
 
     @ManyToOne
-    @JoinColumn(name = "cargo_id", nullable = false)
+    @JoinColumn(name = "cargo_id")
     private Cargo cargo;
 
+    @ManyToMany
+    @JoinTable(name = "funcionarios_unidades", joinColumns = @JoinColumn(name = "fk_funcionario"),
+            inverseJoinColumns = @JoinColumn(name = "fk_unidade")
+    )
+    List<UnidadeTrabalho>unidadeTrabalhos =  new ArrayList<>();
 
     public Funcionario() {
     }
 
-    public Funcionario(String nome,
+    public Funcionario(Long id,
+                       String nome,
                        String cpf,
                        Double salario,
                        LocalDate dataContratacao,
                        Cargo cargo,
                        List<UnidadeTrabalho> unidadeTrabalhos) {
+        this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.salario = salario;
@@ -44,15 +51,6 @@ public class Funcionario implements Serializable {
         this.cargo = cargo;
         this.unidadeTrabalhos = unidadeTrabalhos;
     }
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SELECT)
-    @JoinTable(name = "funcionarios_unidades", joinColumns = {
-            @JoinColumn(name = "fk_funcionario")},
-            inverseJoinColumns = {
-            @JoinColumn(name = "fk_unidade")}
-    )
-    private List<UnidadeTrabalho>unidadeTrabalhos;
 
     public Long getId() {
         return id;
@@ -102,14 +100,10 @@ public class Funcionario implements Serializable {
         this.cargo = cargo;
     }
 
+
     public List<UnidadeTrabalho> getUnidadeTrabalhos() {
         return unidadeTrabalhos;
     }
-
-    public void setUnidadeTrabalhos(List<UnidadeTrabalho> unidadeTrabalhos) {
-        this.unidadeTrabalhos = unidadeTrabalhos;
-    }
-
     @Override
     public String toString() {
         return "Funcionario{" +

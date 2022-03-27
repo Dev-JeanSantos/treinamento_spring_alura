@@ -1,5 +1,6 @@
 package com.teste.treinamento_spring.resource;
 
+import com.teste.treinamento_spring.response.FuncionarioResponse;
 import com.teste.treinamento_spring.response.RelatorioFuncionarioResponse;
 import com.teste.treinamento_spring.service.CrudFuncionarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,8 @@ public class RelatorioControllers {
    }
 
    @GetMapping(value = "/{id}")
-   public ResponseEntity<RelatorioFuncionarioResponse> findById(@PathVariable Long id) {
-      RelatorioFuncionarioResponse response = service.findById(id);
+   public ResponseEntity<FuncionarioResponse> findById(@PathVariable Long id) {
+      FuncionarioResponse response = service.findById(id);
       return ResponseEntity.ok().body(response);
   }
 

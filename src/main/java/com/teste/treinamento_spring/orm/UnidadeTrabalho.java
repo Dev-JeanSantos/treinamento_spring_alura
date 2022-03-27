@@ -15,8 +15,17 @@ public class UnidadeTrabalho {
     private String descricao;
     private String endereco;
 
-    @ManyToMany(mappedBy = "unidadeTrabalhos", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "unidadeTrabalhos")
     private List<Funcionario> funcionarios = new ArrayList<>();
+
+    public UnidadeTrabalho() {
+    }
+
+    public UnidadeTrabalho(Long id, String descricao, String endereco) {
+        this.id = id;
+        this.descricao = descricao;
+        this.endereco = endereco;
+    }
 
     public Long getId() {
         return id;
@@ -34,6 +43,18 @@ public class UnidadeTrabalho {
         this.descricao = descricao;
     }
 
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public List<Funcionario> getFuncionarios() {
+        return funcionarios;
+    }
+
     @Override
     public String toString() {
         return "UnidadeTrabalho{" +
@@ -43,11 +64,5 @@ public class UnidadeTrabalho {
                 '}';
     }
 
-    public String getEndereco() {
-        return endereco;
-    }
 
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
 }
