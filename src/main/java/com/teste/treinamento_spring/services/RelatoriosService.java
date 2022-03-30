@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RelatoriosService {
@@ -32,5 +34,13 @@ public class RelatoriosService {
         Optional<Funcionario> obj = repository.findNomeSalarioMaiorDataContratatcao(nome, salario, ld);
         Funcionario funcionario = obj.orElseThrow(() -> new ResourcesNotFoundException ("Funcionario não encontrado"));
         return new FuncionarioResponse(funcionario, funcionario.getUnidadeTrabalhos());
+    }
+
+    public List<FuncionarioResponse> relatorioPorContratacao(String dataContratacao) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate ld = LocalDate.parse(dataContratacao, formatter);
+
+        List<Funcionario> list = repository.findDataContratatcao(ld);
+        return list.stream().map(x -> new FuncionarioResponse(x)).collect(Collectors.toList());
     }
 }

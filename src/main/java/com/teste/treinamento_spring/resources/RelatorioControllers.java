@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/relatorios")
 public class RelatorioControllers {
@@ -24,5 +26,9 @@ public class RelatorioControllers {
        FuncionarioResponse response = service.relatorioPorNomeMaiorSalarioDataContratacao(nome, salario, dataContratacao);
        return ResponseEntity.ok().body(response);
   }
-
+  @GetMapping(value = "dataContratacao/{dataContratacao}")
+  public ResponseEntity<List<FuncionarioResponse>> findByDataContratacao(@PathVariable String dataContratacao) {
+      List<FuncionarioResponse> response = service.relatorioPorContratacao(dataContratacao);
+      return ResponseEntity.ok(response);
+  }
 }
